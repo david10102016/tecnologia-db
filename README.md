@@ -4,6 +4,8 @@
 SafeTrack es una aplicación web para el registro, seguimiento y gestión de incidentes de seguridad laboral en entornos industriales. Permite a operarios reportar incidentes y a supervisores gestionar su resolución mediante acciones correctivas.
 
 ---
+Tipo de aplicación: Web
+SafeTrack se desarrolla como una aplicación web debido a que el entorno de uso es industrial y multiusuario, donde distintos empleados (operarios y supervisores) necesitan acceder al sistema desde diferentes equipos dentro de la planta sin necesidad de instalar software adicional. Una aplicación web permite el acceso inmediato desde cualquier navegador, facilita el mantenimiento centralizado del sistema y simplifica el despliegue tanto en entornos locales (XAMPP) como en la nube (Render + Supabase), lo que la convierte en la opción más práctica y escalable para las necesidades del proyecto.
 
 ## Tecnologías utilizadas
 
