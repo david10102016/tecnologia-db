@@ -6,7 +6,9 @@
 // CAMBIAR: ruta a la API según tu entorno
 // Local XAMPP:  '../backend/api/index.php'
 // Render nube:  'https://TU-APP.onrender.com/api/index.php'
-const API = '../backend/api/index.php';
+const API = window.location.hostname === 'localhost'
+    ? '../backend/api/index.php'
+    : 'https://david-code.onrender.com/backend/api/index.php';
 
 // ── Fetch helper ──────────────────────────────────────────
 async function api(action, data = {}) {

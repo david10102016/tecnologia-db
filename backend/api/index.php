@@ -28,7 +28,7 @@ if ($action === 'login') {
     echo json_encode($auth->login(
         $body['username'] ?? '',
         $body['password'] ?? '',
-        $body['motor']    ?? 'mysql' // CAMBIAR a 'supabase' si está desplegado en Render
+        $body['motor'] ?? (isset($_SERVER['RENDER']) ? 'supabase' : 'mysql')
     ));
     exit;
 }
