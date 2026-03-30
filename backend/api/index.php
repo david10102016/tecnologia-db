@@ -33,7 +33,7 @@ if ($action === 'login') {
     echo json_encode($auth->login(
         $body['username'] ?? '',
         $body['password'] ?? '',
-        $body['motor'] ?? (isset($_SERVER['RENDER']) ? 'supabase' : 'mysql')
+        $body['motor'] ?? (getenv('MOTOR') ?: 'mysql')
     ));
     exit;
 }
