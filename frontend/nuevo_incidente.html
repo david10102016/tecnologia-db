@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>SafeTrack — Nuevo Incidente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V6L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
+      </div>
+      <div><h1>SafeTrack</h1><span>Seguridad Laboral</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Principal</div>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+      </a>
+      <a href="incidentes.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Incidentes
+      </a>
+      <a href="nuevo_incidente.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Nuevo Incidente
+      </a>
+      <a href="acciones.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Acciones Correctivas
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div><div class="name" id="userName">—</div><div class="role" id="userRole">—</div></div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <button class="menu-toggle" id="menuToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div>
+        <div style="font-size:1.1rem;font-weight:500;">Nuevo Incidente</div>
+        <div class="subtitle">Registrar incidente en MySQL y Supabase</div>
+      </div>
+    </div>
+
+    <div class="content fade-in">
+      <div class="alert" id="alert"></div>
+      <div class="card" style="max-width:680px;">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          Datos del incidente
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Tipo de incidente</label>
+            <select id="id_tipo"><option value="">Seleccionar...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Área</label>
+            <select id="id_area"><option value="">Seleccionar...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Nivel de gravedad</label>
+            <select id="id_gravedad"><option value="">Seleccionar...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Empleado involucrado</label>
+            <select id="id_empleado"><option value="">Seleccionar...</option></select>
+          </div>
+          <div class="form-group full">
+            <label>Descripción del incidente</label>
+            <textarea id="descripcion" placeholder="Describe detalladamente lo ocurrido..."></textarea>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem;flex-wrap:wrap;">
+          <a href="incidentes.html" class="btn btn-ghost">Cancelar</a>
+          <button class="btn btn-primary" id="btnGuardar" onclick="guardar()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Guardar en ambas BDs
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+(async () => {
+  const usuario = await checkSesion();
+  if (!usuario) return;
+  cargarUsuarioSidebar(usuario);
+
+  // Cargar catálogos
+  const cat = await api('catalogos');
+  if (!cat.success) return;
+
+  llenarSelect('id_tipo',     cat.tipos,      'id_tipo',     'nombre_tipo');
+  llenarSelect('id_area',     cat.areas,      'id_area',     'nombre_area');
+  llenarSelect('id_gravedad', cat.gravedades, 'id_gravedad', 'nombre_gravedad');
+  llenarSelect('id_empleado', cat.empleados,  'id_empleado', 'nombre_completo');
+})();
+
+function llenarSelect(id, items, valKey, labelKey) {
+  const sel = document.getElementById(id);
+  items.forEach(i => {
+    const opt = document.createElement('option');
+    opt.value = i[valKey];
+    opt.textContent = i[labelKey];
+    sel.appendChild(opt);
+  });
+}
+
+async function guardar() {
+  const tipo      = document.getElementById('id_tipo').value;
+  const area      = document.getElementById('id_area').value;
+  const gravedad  = document.getElementById('id_gravedad').value;
+  const empleado  = document.getElementById('id_empleado').value;
+  const desc      = document.getElementById('descripcion').value.trim();
+
+  if (!tipo || !area || !gravedad || !desc) {
+    showAlert('alert', 'Completa todos los campos obligatorios.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnGuardar');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  const payload = {
+    id_tipo:    parseInt(tipo),
+    id_area:    parseInt(area),
+    id_gravedad: parseInt(gravedad),
+    descripcion: desc,
+    empleados_involucrados: empleado ? [{ id_empleado: parseInt(empleado), rol: 'Involucrado' }] : []
+  };
+
+  const data = await api('registrar_incidente', payload);
+  if (data.success) {
+    showAlert('alert', data.message, 'success');
+    setTimeout(() => window.location.href = 'incidentes.html', 1500);
+  } else {
+    showAlert('alert', data.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Guardar en ambas BDs';
+  }
+}
+</script>
+</body>
+</html>

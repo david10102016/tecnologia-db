@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>SafeTrack — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V6L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
+      </div>
+      <div>
+        <h1>SafeTrack</h1>
+        <span>Seguridad Laboral</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Principal</div>
+      <a href="dashboard.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="incidentes.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Incidentes
+      </a>
+      <a href="nuevo_incidente.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Nuevo Incidente
+      </a>
+      <a href="acciones.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Acciones Correctivas
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div>
+          <div class="name" id="userName">—</div>
+          <div class="role" id="userRole">—</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <button class="menu-toggle" id="menuToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div>
+        <div class="topbar h2" style="font-size:1.1rem;font-weight:500;">Dashboard</div>
+        <div class="subtitle">Resumen general del sistema</div>
+      </div>
+    </div>
+
+    <div class="content fade-in">
+
+      <!-- Stats MySQL -->
+      <div style="margin-bottom:.5rem;">
+        <span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);">
+          MySQL — Local
+        </span>
+      </div>
+      <div class="stats-grid" id="statsMysql">
+        <div class="stat-card muted"><div class="label">Total</div><div class="value" id="m-total">—</div></div>
+        <div class="stat-card accent"><div class="label">Abiertos</div><div class="value" id="m-abiertos">—</div></div>
+        <div class="stat-card warning"><div class="label">En Proceso</div><div class="value" id="m-proceso">—</div></div>
+        <div class="stat-card success"><div class="label">Cerrados</div><div class="value" id="m-cerrados">—</div></div>
+      </div>
+
+      <!-- Stats Supabase -->
+      <div style="margin-bottom:.5rem;margin-top:1.5rem;">
+        <span style="font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);">
+          PostgreSQL — Supabase
+        </span>
+      </div>
+      <div class="stats-grid" id="statsSupabase">
+        <div class="stat-card muted"><div class="label">Total</div><div class="value" id="s-total">—</div></div>
+        <div class="stat-card accent"><div class="label">Abiertos</div><div class="value" id="s-abiertos">—</div></div>
+        <div class="stat-card warning"><div class="label">En Proceso</div><div class="value" id="s-proceso">—</div></div>
+        <div class="stat-card success"><div class="label">Cerrados</div><div class="value" id="s-cerrados">—</div></div>
+      </div>
+
+      <!-- Frecuencia por tipo -->
+      <div class="card" style="margin-top:1.5rem;">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Frecuencia histórica por tipo de incidente
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo de Incidente</th>
+                <th>Total</th>
+                <th>Proporción</th>
+              </tr>
+            </thead>
+            <tbody id="tablaFrecuencia">
+              <tr><td colspan="3" style="color:var(--muted);text-align:center;padding:2rem;">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Incidentes sin resolver -->
+      <div class="card" style="margin-top:1.5rem;">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Incidentes sin resolver por área
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Fecha</th><th>Tipo</th><th>Área</th><th>Gravedad</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="tablaSinResolver">
+              <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:2rem;">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+(async () => {
+  const usuario = await checkSesion();
+  if (!usuario) return;
+  cargarUsuarioSidebar(usuario);
+
+  // Cargar stats
+  const data = await api('stats');
+  if (data.success) {
+    // MySQL
+    document.getElementById('m-total').textContent    = data.mysql.total;
+    document.getElementById('m-abiertos').textContent = data.mysql.abiertos;
+    document.getElementById('m-proceso').textContent  = data.mysql.en_proceso;
+    document.getElementById('m-cerrados').textContent = data.mysql.cerrados;
+    // Supabase
+    document.getElementById('s-total').textContent    = data.supabase.total;
+    document.getElementById('s-abiertos').textContent = data.supabase.abiertos;
+    document.getElementById('s-proceso').textContent  = data.supabase.en_proceso;
+    document.getElementById('s-cerrados').textContent = data.supabase.cerrados;
+
+    // Frecuencia por tipo
+    const total = data.frecuencia.reduce((a, b) => a + parseInt(b.total_incidentes), 0);
+    document.getElementById('tablaFrecuencia').innerHTML = data.frecuencia.map(f => {
+      const pct = total > 0 ? Math.round(f.total_incidentes / total * 100) : 0;
+      return `<tr>
+        <td>${f.nombre_tipo}</td>
+        <td><strong>${f.total_incidentes}</strong></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <div style="flex:1;background:var(--border);border-radius:4px;height:6px;">
+              <div style="width:${pct}%;background:var(--accent);height:6px;border-radius:4px;"></div>
+            </div>
+            <span style="font-size:.8rem;color:var(--muted);min-width:36px;">${pct}%</span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Sin resolver
+  const sr = await api('sin_resolver');
+  if (sr.success && sr.mysql.length > 0) {
+    document.getElementById('tablaSinResolver').innerHTML = sr.mysql.map(i => `
+      <tr>
+        <td style="color:var(--muted);font-size:.8rem;">#${i.id_incidente}</td>
+        <td style="font-size:.82rem;">${formatFecha(i.fecha_hora)}</td>
+        <td>${i.nombre_tipo}</td>
+        <td>${i.nombre_area}</td>
+        <td>${badgeGravedad(i.nombre_gravedad)}</td>
+        <td>${badgeEstado(i.nombre_estado)}</td>
+      </tr>`).join('');
+  } else {
+    document.getElementById('tablaSinResolver').innerHTML =
+      '<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:2rem;">Sin incidentes pendientes ✓</td></tr>';
+  }
+})();
+</script>
+</body>
+</html>

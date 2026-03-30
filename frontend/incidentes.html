@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>SafeTrack — Incidentes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V6L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
+      </div>
+      <div><h1>SafeTrack</h1><span>Seguridad Laboral</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Principal</div>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+      </a>
+      <a href="incidentes.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Incidentes
+      </a>
+      <a href="nuevo_incidente.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Nuevo Incidente
+      </a>
+      <a href="acciones.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Acciones Correctivas
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div><div class="name" id="userName">—</div><div class="role" id="userRole">—</div></div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <button class="menu-toggle" id="menuToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div>
+        <div style="font-size:1.1rem;font-weight:500;">Incidentes</div>
+        <div class="subtitle">Listado completo de incidentes registrados</div>
+      </div>
+      <a href="nuevo_incidente.html" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo
+      </a>
+    </div>
+
+    <div class="content fade-in">
+      <div class="alert" id="alert"></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Fecha</th><th>Tipo</th><th>Área</th>
+                <th>Gravedad</th><th>Estado</th><th>Registrado por</th><th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tablaIncidentes">
+              <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:2rem;">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+let usuarioActual = null;
+
+(async () => {
+  usuarioActual = await checkSesion();
+  if (!usuarioActual) return;
+  cargarUsuarioSidebar(usuarioActual);
+  await cargarIncidentes();
+})();
+
+async function cargarIncidentes() {
+  const data = await api('listar_incidentes');
+  if (!data.success) return;
+  const tbody = document.getElementById('tablaIncidentes');
+  if (!data.data.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:2rem;">Sin incidentes registrados</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.data.map(i => {
+    // Botón cerrar solo visible para supervisores y si no está cerrado
+    const puedeC = usuarioActual.rol === 'supervisor' && i.nombre_estado !== 'Cerrado';
+    const btnCerrar = puedeC
+      ? `<button class="btn btn-danger" onclick="cerrar(${i.id_incidente})" style="padding:.35rem .75rem;font-size:.8rem;">Cerrar</button>`
+      : '—';
+    return `<tr>
+      <td style="color:var(--muted);font-size:.8rem;">#${i.id_incidente}</td>
+      <td style="font-size:.82rem;">${formatFecha(i.fecha_hora)}</td>
+      <td>${i.nombre_tipo}</td>
+      <td>${i.nombre_area}</td>
+      <td>${badgeGravedad(i.nombre_gravedad)}</td>
+      <td>${badgeEstado(i.nombre_estado)}</td>
+      <td style="font-size:.82rem;color:var(--muted);">${i.registrado_por}</td>
+      <td>${btnCerrar}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function cerrar(id) {
+  if (!confirm('¿Cerrar este incidente?')) return;
+  const data = await api('cerrar_incidente', { id_incidente: id });
+  if (data.success) {
+    showAlert('alert', data.message, 'success');
+    await cargarIncidentes();
+  } else {
+    showAlert('alert', data.message, 'error');
+  }
+}
+</script>
+</body>
+</html>

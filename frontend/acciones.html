@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>SafeTrack — Acciones Correctivas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V6L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
+      </div>
+      <div><h1>SafeTrack</h1><span>Seguridad Laboral</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Principal</div>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+      </a>
+      <a href="incidentes.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Incidentes
+      </a>
+      <a href="nuevo_incidente.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Nuevo Incidente
+      </a>
+      <a href="acciones.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Acciones Correctivas
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div><div class="name" id="userName">—</div><div class="role" id="userRole">—</div></div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <button class="menu-toggle" id="menuToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div>
+        <div style="font-size:1.1rem;font-weight:500;">Acciones Correctivas</div>
+        <div class="subtitle">Registro de acciones tomadas por incidente</div>
+      </div>
+    </div>
+
+    <div class="content fade-in">
+      <div class="alert" id="alert"></div>
+
+      <!-- Formulario nueva acción -->
+      <div class="card" style="max-width:680px;margin-bottom:1.5rem;">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Registrar nueva acción correctiva
+        </div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Incidente relacionado</label>
+            <select id="id_incidente"><option value="">Seleccionar incidente...</option></select>
+          </div>
+          <div class="form-group full">
+            <label>Descripción de la acción</label>
+            <textarea id="descripcion_accion" placeholder="Describe la acción correctiva tomada..."></textarea>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:1rem;">
+          <button class="btn btn-primary" onclick="guardarAccion()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/></svg>
+            Registrar acción
+          </button>
+        </div>
+      </div>
+
+      <!-- Listado de acciones -->
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Historial de acciones
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Fecha</th><th>Incidente</th><th>Acción tomada</th><th>Registrado por</th></tr>
+            </thead>
+            <tbody id="tablaAcciones">
+              <tr><td colspan="4" style="color:var(--muted);text-align:center;padding:2rem;">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+(async () => {
+  const usuario = await checkSesion();
+  if (!usuario) return;
+  cargarUsuarioSidebar(usuario);
+
+  // Cargar incidentes para el select
+  const inc = await api('listar_incidentes');
+  if (inc.success) {
+    const sel = document.getElementById('id_incidente');
+    inc.data.forEach(i => {
+      const opt = document.createElement('option');
+      opt.value = i.id_incidente;
+      opt.textContent = `#${i.id_incidente} — ${i.nombre_tipo} (${i.nombre_area})`;
+      sel.appendChild(opt);
+    });
+  }
+
+  await cargarAcciones();
+})();
+
+async function cargarAcciones() {
+  const data = await api('listar_acciones');
+  if (!data.success) return;
+  const tbody = document.getElementById('tablaAcciones');
+  if (!data.data.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:2rem;">Sin acciones registradas</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.data.map(a => `
+    <tr>
+      <td style="font-size:.82rem;white-space:nowrap;">${formatFecha(a.fecha_accion)}</td>
+      <td style="font-size:.82rem;color:var(--muted);">${a.incidente_desc?.substring(0, 50)}...</td>
+      <td>${a.descripcion}</td>
+      <td style="font-size:.82rem;color:var(--muted);">${a.username}</td>
+    </tr>`).join('');
+}
+
+async function guardarAccion() {
+  const id  = document.getElementById('id_incidente').value;
+  const desc = document.getElementById('descripcion_accion').value.trim();
+  if (!id || !desc) { showAlert('alert', 'Selecciona un incidente y escribe la acción.', 'error'); return; }
+  const data = await api('registrar_accion', { id_incidente: parseInt(id), descripcion: desc });
+  if (data.success) {
+    showAlert('alert', data.message, 'success');
+    document.getElementById('descripcion_accion').value = '';
+    document.getElementById('id_incidente').value = '';
+    await cargarAcciones();
+  } else {
+    showAlert('alert', data.message, 'error');
+  }
+}
+</script>
+</body>
+</html>

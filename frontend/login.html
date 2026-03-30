@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>SafeTrack — Acceso</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0d0f; --surface: #13171c; --border: #1f2730;
+      --accent: #e8522a; --accent2: #f07d57;
+      --text: #eef0f2; --muted: #5a6472; --radius: 10px;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text);
+      font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background: radial-gradient(ellipse 80% 60% at 70% 20%, rgba(232,82,42,.08) 0%, transparent 60%);
+    }
+    .page { position: relative; z-index: 1; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+    .card { width: 100%; max-width: 420px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem 2rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,.5); animation: fadeUp .5s ease both; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+    .brand { display: flex; align-items: center; gap: .75rem; margin-bottom: 2rem; }
+    .brand-icon { width: 42px; height: 42px; background: var(--accent); border-radius: 10px;
+      display: grid; place-items: center; flex-shrink: 0; }
+    .brand-icon svg { width: 22px; height: 22px; fill: #fff; }
+    .brand-text h1 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem;
+      letter-spacing: .08em; line-height: 1; }
+    .brand-text span { font-size: .72rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .12em; }
+    .divider { height: 1px; background: var(--border); margin-bottom: 1.75rem; }
+    .form-header { margin-bottom: 1.5rem; }
+    .form-header h2 { font-size: 1.1rem; font-weight: 500; }
+    .form-header p  { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
+    .field { margin-bottom: 1.1rem; }
+    .field label { display: block; font-size: .75rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: .4rem; }
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-wrap > svg { position: absolute; left: .9rem; width: 16px; height: 16px;
+      stroke: var(--muted); pointer-events: none; transition: stroke .2s; }
+    .field input { width: 100%; background: #0f1318; border: 1px solid var(--border);
+      border-radius: var(--radius); color: var(--text); font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; padding: .75rem .9rem .75rem 2.6rem; outline: none;
+      transition: border-color .2s, box-shadow .2s; -webkit-appearance: none; }
+    .field input::placeholder { color: var(--muted); }
+    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,82,42,.15); }
+    .eye-btn { position: absolute; right: .9rem; background: none; border: none;
+      cursor: pointer; padding: 0; display: grid; place-items: center; }
+    .eye-btn svg { width: 17px; height: 17px; stroke: var(--muted); transition: stroke .2s; }
+    .eye-btn:hover svg { stroke: var(--text); }
+    .btn-primary { width: 100%; margin-top: 1.5rem; padding: .85rem;
+      background: var(--accent); color: #fff; font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 500; border: none; border-radius: var(--radius);
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem;
+      transition: background .2s, transform .15s; -webkit-tap-highlight-color: transparent; }
+    .btn-primary:hover { background: var(--accent2); box-shadow: 0 6px 20px rgba(232,82,42,.35); }
+    .btn-primary:active { transform: scale(.98); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+    .btn-primary.loading .spinner { display: block; }
+    .btn-primary.loading .btn-label { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .alert { display: none; margin-top: 1rem; padding: .75rem 1rem;
+      border-radius: var(--radius); font-size: .85rem; border-left: 3px solid; }
+    .alert.error   { background: rgba(232,82,42,.1);  border-color: var(--accent);  color: #f09070; }
+    .alert.success { background: rgba(40,180,100,.1); border-color: #28b464;        color: #60d090; }
+    .alert.show    { display: block; animation: fadeUp .3s ease; }
+    .card-footer { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: .5rem; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #28b464;
+      animation: pulse 2s infinite; flex-shrink: 0; }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 2px rgba(40,180,100,.2); }
+      50%      { box-shadow: 0 0 0 5px rgba(40,180,100,.05); } }
+    .card-footer p { font-size: .75rem; color: var(--muted); }
+    @media (max-width: 480px) { .card { padding: 2rem 1.25rem; border-radius: 12px; } }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="card">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V6L12 2zm-1 13l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
+      </div>
+      <div class="brand-text">
+        <h1>SafeTrack</h1>
+        <span>Seguridad Laboral</span>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="form-header">
+      <h2>Iniciar sesión</h2>
+      <p>Ingresa tus credenciales para continuar</p>
+    </div>
+    <div class="field">
+      <label for="username">Usuario</label>
+      <div class="input-wrap">
+        <input type="text" id="username" placeholder="tu.usuario"
+          autocomplete="username" autocapitalize="none" spellcheck="false" />
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+      </div>
+    </div>
+    <div class="field">
+      <label for="password">Contraseña</label>
+      <div class="input-wrap">
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <button class="eye-btn" id="togglePass" type="button" aria-label="Mostrar contraseña">
+          <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="alert" id="alert"></div>
+    <button class="btn-primary" id="btnLogin" type="button">
+      <div class="spinner"></div>
+      <span class="btn-label">Ingresar al sistema</span>
+    </button>
+    <div class="card-footer">
+      <div class="status-dot"></div>
+      <!-- CAMBIAR: versión del sistema -->
+      <p>Sistema activo — v1.0.0</p>
+    </div>
+  </div>
+</div>
+<script>
+  // CAMBIAR: si el proyecto está en Render, cambia la ruta de la API
+  const API = '../backend/api/index.php';
+
+  document.getElementById('togglePass').addEventListener('click', () => {
+    const p = document.getElementById('password');
+    const e = document.getElementById('eyeIcon');
+    const v = p.type === 'text';
+    p.type = v ? 'password' : 'text';
+    e.innerHTML = v
+      ? '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'
+      : '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  });
+
+  function showAlert(msg, type) {
+    const el = document.getElementById('alert');
+    el.textContent = msg;
+    el.className = `alert ${type} show`;
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  document.getElementById('btnLogin').addEventListener('click', doLogin);
+
+  async function doLogin() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    if (!username || !password) { showAlert('Completa todos los campos.', 'error'); return; }
+    const btn = document.getElementById('btnLogin');
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+      const res  = await fetch(API, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'login', username, password })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showAlert('Acceso correcto. Redirigiendo...', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 1000);
+      } else {
+        showAlert(data.message || 'Credenciales incorrectas.', 'error');
+      }
+    } catch {
+      showAlert('No se pudo conectar con el servidor.', 'error');
+    } finally {
+      btn.classList.remove('loading'); btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
