@@ -1,30 +1,39 @@
 // ============================================================
 // SAFETRACK — JS global
 // Funciones compartidas entre todas las páginas
+// Usa token en localStorage en vez de sesiones PHP
+// Compatible con XAMPP local y Render en la nube
 // ============================================================
 
-// CAMBIAR: ruta a la API según tu entorno
-// Local XAMPP:  '../backend/api/index.php'
-// Render nube:  'https://TU-APP.onrender.com/api/index.php'
 const API = window.location.hostname === 'localhost'
     ? '../backend/api/index.php'
     : 'https://david-code.onrender.com/backend/api/index.php';
 
 // ── Fetch helper ──────────────────────────────────────────
 async function api(action, data = {}) {
+    const token = localStorage.getItem('safetrack_token') || '';
     const res = await fetch(API, {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ action, ...data })
+        headers: {
+            'Content-Type':  'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ action, ...data })
     });
     return res.json();
 }
 
 // ── Verificar sesión ──────────────────────────────────────
 async function checkSesion() {
+    const token = localStorage.getItem('safetrack_token');
+    if (!token) {
+        window.location.href = 'login.html';
+        return null;
+    }
     try {
         const data = await api('sesion');
         if (!data.autenticado) {
+            localStorage.removeItem('safetrack_token');
             window.location.href = 'login.html';
             return null;
         }
@@ -48,6 +57,7 @@ function cargarUsuarioSidebar(usuario) {
 // ── Logout ────────────────────────────────────────────────
 async function logout() {
     await api('logout');
+    localStorage.removeItem('safetrack_token');
     window.location.href = 'login.html';
 }
 

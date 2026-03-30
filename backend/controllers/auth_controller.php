@@ -1,7 +1,8 @@
 <?php
 // ============================================================
 // CONTROLADOR DE AUTENTICACIÓN
-// Maneja login y logout
+// Usa token simple en vez de sesiones PHP
+// Compatible con XAMPP local y Render en la nube
 // ============================================================
 require_once __DIR__ . '/../models/mysql_model.php';
 require_once __DIR__ . '/../models/supabase_model.php';
@@ -13,38 +14,43 @@ class AuthController {
             return ['success' => false, 'message' => 'Usuario y contraseña requeridos'];
         }
 
-        // Intentar login según el motor activo
-        // NOTA: por defecto usa MySQL local
-        // Si el proyecto está desplegado en Render, cambia a 'supabase'
         if ($motor === 'supabase') {
             $model   = new SupabaseModel();
             $usuario = $model->loginUsuario($username, $password);
-            $nombre  = isset($usuario['empleados']) ? $usuario['empleados']['nombre'] : $username;
-            $rol     = isset($usuario['roles'])     ? $usuario['roles']['nombre_rol'] : '';
-            $id      = $usuario['id_usuario'] ?? null;
+            if (!$usuario) {
+                return ['success' => false, 'message' => 'Usuario o contraseña incorrectos'];
+            }
+            $nombre = isset($usuario['empleados']) ? $usuario['empleados']['nombre'] : $username;
+            $rol    = isset($usuario['roles'])     ? $usuario['roles']['nombre_rol'] : '';
+            $id     = $usuario['id_usuario'] ?? null;
         } else {
             $model   = new MySQLModel();
             $usuario = $model->loginUsuario($username, $password);
-            $nombre  = $usuario['nombre']     ?? $username;
-            $rol     = $usuario['nombre_rol'] ?? '';
-            $id      = $usuario['id_usuario'] ?? null;
+            if (!$usuario) {
+                return ['success' => false, 'message' => 'Usuario o contraseña incorrectos'];
+            }
+            $nombre = $usuario['nombre']     ?? $username;
+            $rol    = $usuario['nombre_rol'] ?? '';
+            $id     = $usuario['id_usuario'] ?? null;
         }
 
-        if (!$usuario) {
-            return ['success' => false, 'message' => 'Usuario o contraseña incorrectos'];
-        }
+        // Generar token simple con los datos del usuario
+        $token_data = [
+            'id'       => $id,
+            'username' => $username,
+            'nombre'   => $nombre,
+            'rol'      => $rol,
+            'exp'      => time() + (60 * 60 * 8) // 8 horas
+        ];
 
-        // Guardar sesión
-        session_start();
-        $_SESSION['id_usuario'] = $id;
-        $_SESSION['username']   = $username;
-        $_SESSION['nombre']     = $nombre;
-        $_SESSION['rol']        = $rol;
+        // Codificar en base64 como token simple
+        $token = base64_encode(json_encode($token_data));
 
         return [
-            'success'  => true,
-            'message'  => 'Acceso correcto',
-            'usuario'  => [
+            'success' => true,
+            'message' => 'Acceso correcto',
+            'token'   => $token,
+            'usuario' => [
                 'id'       => $id,
                 'username' => $username,
                 'nombre'   => $nombre,
@@ -54,23 +60,33 @@ class AuthController {
     }
 
     public function logout() {
-        session_start();
-        session_destroy();
+        // El frontend elimina el token de localStorage
         return ['success' => true, 'message' => 'Sesión cerrada'];
     }
 
-    public function verificarSesion() {
-        session_start();
-        if (empty($_SESSION['id_usuario'])) {
+    public function verificarSesion($token = null) {
+        if (empty($token)) {
             return ['autenticado' => false];
         }
+
+        // Decodificar token
+        $data = json_decode(base64_decode($token), true);
+        if (!$data) {
+            return ['autenticado' => false];
+        }
+
+        // Verificar expiración
+        if ($data['exp'] < time()) {
+            return ['autenticado' => false, 'message' => 'Sesión expirada'];
+        }
+
         return [
             'autenticado' => true,
             'usuario'     => [
-                'id'       => $_SESSION['id_usuario'],
-                'username' => $_SESSION['username'],
-                'nombre'   => $_SESSION['nombre'],
-                'rol'      => $_SESSION['rol']
+                'id'       => $data['id'],
+                'username' => $data['username'],
+                'nombre'   => $data['nombre'],
+                'rol'      => $data['rol']
             ]
         ];
     }

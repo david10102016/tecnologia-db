@@ -4,9 +4,9 @@
 // Todas las peticiones del frontend llegan aquí
 // ============================================================
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');  // CAMBIAR en producción por tu dominio
+header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PATCH, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -20,10 +20,15 @@ require_once __DIR__ . '/../controllers/incidente_controller.php';
 $body   = json_decode(file_get_contents('php://input'), true) ?? [];
 $action = $body['action'] ?? $_GET['action'] ?? '';
 
+// Leer token del header o del body
+$headers     = getallheaders();
+$token       = $headers['Authorization'] ?? $body['token'] ?? '';
+$token       = str_replace('Bearer ', '', $token);
+
 $auth       = new AuthController();
 $incidentes = new IncidenteController();
 
-// ── Rutas públicas (no requieren sesión) ───────────────────
+// ── Rutas públicas (no requieren token) ───────────────────
 if ($action === 'login') {
     echo json_encode($auth->login(
         $body['username'] ?? '',
@@ -38,8 +43,8 @@ if ($action === 'logout') {
     exit;
 }
 
-// ── Verificar sesión para rutas protegidas ─────────────────
-$sesion = $auth->verificarSesion();
+// ── Verificar token para rutas protegidas ──────────────────
+$sesion = $auth->verificarSesion($token);
 if (!$sesion['autenticado']) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'No autenticado']);
@@ -52,22 +57,18 @@ $id_usuario = $sesion['usuario']['id'];
 // ── Rutas protegidas ───────────────────────────────────────
 switch ($action) {
 
-    // Sesión activa
     case 'sesion':
         echo json_encode($sesion);
         break;
 
-    // Catálogos
     case 'catalogos':
         echo json_encode($incidentes->getCatalogos());
         break;
 
-    // Dashboard
     case 'stats':
         echo json_encode($incidentes->getStats());
         break;
 
-    // Incidentes
     case 'listar_incidentes':
         echo json_encode($incidentes->listar());
         break;
@@ -86,11 +87,9 @@ switch ($action) {
         break;
 
     case 'cerrar_incidente':
-        // Solo supervisores — validado también en el controller
         echo json_encode($incidentes->cerrar($body['id_incidente'] ?? 0, $rol));
         break;
 
-    // Acciones correctivas
     case 'listar_acciones':
         echo json_encode($incidentes->listarAcciones($body['id_incidente'] ?? null));
         break;

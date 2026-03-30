@@ -136,8 +136,9 @@
   </div>
 </div>
 <script>
-  // CAMBIAR: si el proyecto está en Render, cambia la ruta de la API
-  const API = '../backend/api/index.php';
+  const API = window.location.hostname === 'localhost'
+    ? '../backend/api/index.php'
+    : 'https://david-code.onrender.com/backend/api/index.php';
 
   document.getElementById('togglePass').addEventListener('click', () => {
     const p = document.getElementById('password');
@@ -171,6 +172,7 @@
       });
       const data = await res.json();
       if (data.success) {
+        localStorage.setItem('safetrack_token', data.token);
         showAlert('Acceso correcto. Redirigiendo...', 'success');
         setTimeout(() => window.location.href = 'dashboard.html', 1000);
       } else {
