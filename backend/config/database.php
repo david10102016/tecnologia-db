@@ -14,12 +14,16 @@ define('SUPABASE_URL', 'https://vitmgdsgmilmjcattjvv.supabase.co');
 define('SUPABASE_KEY', 'sb_publishable_SgZ-H-V113BqSLbJDgDtcQ_RcVnSI7y');
 
 function conectarMySQL() {
-    $conn = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_DB, MYSQL_PORT);
-    if ($conn->connect_error) {
+    try {
+        $conn = @new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_DB, MYSQL_PORT);
+        if ($conn->connect_error) {
+            return null;
+        }
+        $conn->set_charset('utf8mb4');
+        return $conn;
+    } catch (Exception $e) {
         return null;
     }
-    $conn->set_charset('utf8mb4');
-    return $conn;
 }
 
 function supabaseRequest($tabla, $method = 'GET', $data = null, $filtro = '') {
@@ -37,7 +41,6 @@ function supabaseRequest($tabla, $method = 'GET', $data = null, $filtro = '') {
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     } elseif ($method === 'PATCH') {
-        // PATCH requiere Prefer: return=minimal para funcionar en Supabase
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'apikey: '               . SUPABASE_KEY,
             'Authorization: Bearer ' . SUPABASE_KEY,
