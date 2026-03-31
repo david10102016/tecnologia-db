@@ -91,14 +91,36 @@ class SupabaseModel {
     }
 
     // ── Login ──────────────────────────────────────────────
+    // Sin join embebido — consultas separadas para nombre y rol
     public function loginUsuario($username, $password) {
-        $hash      = md5($password);
+        $hash = md5($password);
+
+        // Consulta principal sin join
         $resultado = supabaseRequest('usuarios', 'GET', null,
-            '?select=id_usuario,username,id_rol,empleados(nombre,apellido),roles(nombre_rol)' .
+            '?select=id_usuario,username,id_rol,id_empleado' .
             '&username=eq.'      . urlencode($username) .
             '&password_hash=eq.' . urlencode($hash) .
             '&limit=1'
         );
-        return (!empty($resultado)) ? $resultado[0] : null;
+
+        if (empty($resultado)) return null;
+
+        $usuario = $resultado[0];
+
+        // Obtener nombre del empleado por separado
+        $empleado = supabaseRequest('empleados', 'GET', null,
+            '?select=nombre,apellido&id_empleado=eq.' . (int)$usuario['id_empleado'] . '&limit=1'
+        );
+
+        // Obtener nombre del rol por separado
+        $rol = supabaseRequest('roles', 'GET', null,
+            '?select=nombre_rol&id_rol=eq.' . (int)$usuario['id_rol'] . '&limit=1'
+        );
+
+        $usuario['nombre']     = $empleado[0]['nombre']     ?? $username;
+        $usuario['apellido']   = $empleado[0]['apellido']   ?? '';
+        $usuario['nombre_rol'] = $rol[0]['nombre_rol']      ?? '';
+
+        return $usuario;
     }
 }
